@@ -1,5 +1,7 @@
 # matrix-php
 
+**Version 0.90.2** — [Changelog](CHANGELOG.md) — [Source](https://codeberg.org/joho1968/matrix-php)
+
 Reusable PHP 8.4+ library for interacting with a Matrix/Synapse homeserver.
 Provides an Application Service client (`MatrixClient`) for sending events and
 managing rooms/users, and a Synapse Admin API client (`SynapseAdminClient`) for
@@ -100,6 +102,11 @@ use Joho\Matrix\Logger\FileLogger;
 
 $logger = new FileLogger( '/var/log/matrix.log', 'info' );
 ```
+
+## Projects using this library
+
+- [Into The Matrix (ITM)](https://codeberg.org/joho1968/into-the-matrix) — Mattermost Bulk Export to Matrix/Synapse migration tool
+- [mtxctl](https://codeberg.org/joho1968/mtxctl) — Matrix/Synapse admin CLI tool
 
 ## License
 

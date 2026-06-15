@@ -91,6 +91,24 @@ interface SynapseAdminClientInterface
     public function getRoom( string $roomId ): array;
 
     /**
+     * Send an arbitrary state event to a room via the Matrix client API.
+     *
+     * The admin token user must be a member of the room with sufficient power level.
+     *
+     * @param array<string, mixed> $content
+     * @throws \RuntimeException on HTTP failure
+     */
+    public function sendStateEvent( string $roomId, string $eventType, string $stateKey, array $content ): void;
+
+    /**
+     * Fetch a single state event from a room. Returns null if the event does not exist (404).
+     *
+     * @return array<string, mixed>|null
+     * @throws \RuntimeException on non-404 HTTP failure
+     */
+    public function getStateEvent( string $roomId, string $eventType, string $stateKey = '' ): ?array;
+
+    /**
      * Send an m.room.tombstone state event marking $roomId as superseded by $replacementRoomId.
      *
      * The admin token user must have sufficient power level in the room.

@@ -131,6 +131,41 @@ final class SynapseAdminClient implements SynapseAdminClientInterface
     }
 
     /**
+     * Send an arbitrary state event to a room via the Matrix client API.
+     */
+    public function sendStateEvent( string $roomId, string $eventType, string $stateKey, array $content ): void
+    {
+        $url = $this->url(
+            '/_matrix/client/v3/rooms/' . rawurlencode( $roomId )
+            . '/state/' . rawurlencode( $eventType )
+            . '/' . rawurlencode( $stateKey ),
+        );
+        $this->http->put( $url, $content, $this->authHeaders() );
+    }
+
+    /**
+     * Fetch a single state event from a room. Returns null if not found (404).
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getStateEvent( string $roomId, string $eventType, string $stateKey = '' ): ?array
+    {
+        $url = $this->url(
+            '/_matrix/client/v3/rooms/' . rawurlencode( $roomId )
+            . '/state/' . rawurlencode( $eventType )
+            . '/' . rawurlencode( $stateKey ),
+        );
+        try {
+            return $this->http->get( $url, $this->authHeaders() )->json();
+        } catch ( \Joho\Matrix\Exception\HttpException $e ) {
+            if ( $e->response->statusCode === 404 ) {
+                return null;
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Send an m.room.tombstone state event via the Matrix client API using the admin token.
      *
      * The admin token user must be a member of $roomId with sufficient power level (≥ 100 for tombstone).
@@ -139,13 +174,10 @@ final class SynapseAdminClient implements SynapseAdminClientInterface
      */
     public function sendTombstone( string $roomId, string $replacementRoomId, string $body = 'This room has been replaced.' ): void
     {
-        $url = $this->url(
-            '/_matrix/client/v3/rooms/' . rawurlencode( $roomId ) . '/state/m.room.tombstone/',
-        );
-        $this->http->put( $url, [
+        $this->sendStateEvent( $roomId, 'm.room.tombstone', '', [
             'body'             => $body,
             'replacement_room' => $replacementRoomId,
-        ], $this->authHeaders() );
+        ] );
     }
 
     /**
