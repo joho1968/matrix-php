@@ -89,13 +89,13 @@ final class SynapseAdminClient implements SynapseAdminClientInterface
      *
      * @return array{rooms: array<int, array<string, mixed>>, offset: int, total_rooms: int, next_batch: int|null}
      */
-    public function listRooms( int $limit = 100, int $from = 0 ): array
+    public function listRooms( int $limit = 100, int $from = 0, ?string $searchTerm = null ): array
     {
-        $url = $this->url( '/_synapse/admin/v1/rooms?' . http_build_query( [
-            'limit' => $limit,
-            'from'  => $from,
-        ] ) );
-
+        $params = [ 'limit' => $limit, 'from' => $from ];
+        if ( $searchTerm !== null && $searchTerm !== '' ) {
+            $params['search_term'] = $searchTerm;
+        }
+        $url = $this->url( '/_synapse/admin/v1/rooms?' . http_build_query( $params ) );
         return $this->http->get( $url, $this->authHeaders() )->json();
     }
 
@@ -131,6 +131,70 @@ final class SynapseAdminClient implements SynapseAdminClientInterface
     }
 
     /**
+     * Accept a pending invite and join the room as the admin token user.
+     *
+     * Uses the Matrix client join endpoint (as the bearer-token user) rather than
+     * the Synapse admin proxy, which silently no-ops on invite-only rooms with no
+     * pending invite.  makeRoomAdmin() must be called first so a valid invite exists.
+     * $userId must equal whoami() — the client API determines the joining user from
+     * the bearer token, not the body.
+     */
+    public function forceJoinRoom( string $roomId, string $userId ): void
+    {
+        $url = $this->url( '/_matrix/client/v3/rooms/' . rawurlencode( $roomId ) . '/join' );
+        $this->http->post( $url, [], $this->authHeaders() );
+    }
+
+    /**
+     * Return the Matrix user ID of the admin token owner.
+     */
+    public function whoami(): string
+    {
+        $url  = $this->url( '/_matrix/client/v3/account/whoami' );
+        $data = $this->http->get( $url, $this->authHeaders() )->json();
+        return (string) ( $data['user_id'] ?? '' );
+    }
+
+    /**
+     * Leave a room as the admin token user.
+     */
+    public function leaveRoom( string $roomId ): void
+    {
+        $url = $this->url( '/_matrix/client/v3/rooms/' . rawurlencode( $roomId ) . '/leave' );
+        $this->http->post( $url, [], $this->authHeaders() );
+    }
+
+    /**
+     * Kick a user from a room via the Matrix client API.
+     */
+    public function kickRoomMember( string $roomId, string $userId, string $reason = '' ): void
+    {
+        $url  = $this->url( '/_matrix/client/v3/rooms/' . rawurlencode( $roomId ) . '/kick' );
+        $body = [ 'user_id' => $userId ];
+        if ( $reason !== '' ) {
+            $body['reason'] = $reason;
+        }
+        $this->http->post( $url, $body, $this->authHeaders() );
+    }
+
+    /**
+     * Set a user's power level in a room by patching m.room.power_levels.
+     */
+    public function setRoomPowerLevel( string $roomId, string $userId, int $level ): void
+    {
+        $pls = $this->getStateEvent( $roomId, 'm.room.power_levels' ) ?? [];
+
+        $defaultLevel = (int) ( $pls['users_default'] ?? 0 );
+        if ( $level === $defaultLevel ) {
+            unset( $pls['users'][$userId] );
+        } else {
+            $pls['users'][$userId] = $level;
+        }
+
+        $this->sendStateEvent( $roomId, 'm.room.power_levels', '', $pls );
+    }
+
+    /**
      * Send an arbitrary state event to a room via the Matrix client API.
      */
     public function sendStateEvent( string $roomId, string $eventType, string $stateKey, array $content ): void
@@ -145,6 +209,9 @@ final class SynapseAdminClient implements SynapseAdminClientInterface
 
     /**
      * Fetch a single state event from a room. Returns null if not found (404).
+     *
+     * Falls back to the Synapse admin room state endpoint when the client API
+     * returns 403 (admin token user is not a member of the room).
      *
      * @return array<string, mixed>|null
      */
@@ -161,8 +228,22 @@ final class SynapseAdminClient implements SynapseAdminClientInterface
             if ( $e->response->statusCode === 404 ) {
                 return null;
             }
-            throw $e;
+            if ( $e->response->statusCode !== 403 ) {
+                throw $e;
+            }
         }
+
+        // Admin token user is not a member — fall back to the admin state endpoint.
+        $adminUrl = $this->url( '/_synapse/admin/v1/rooms/' . rawurlencode( $roomId ) . '/state' );
+        $events   = $this->http->get( $adminUrl, $this->authHeaders() )->json();
+
+        foreach ( $events['state'] ?? [] as $event ) {
+            if ( ( $event['type'] ?? '' ) === $eventType && ( $event['state_key'] ?? '' ) === $stateKey ) {
+                return $event['content'] ?? [];
+            }
+        }
+
+        return null;
     }
 
     /**

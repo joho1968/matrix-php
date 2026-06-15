@@ -77,10 +77,12 @@ interface SynapseAdminClientInterface
     /**
      * List rooms on the homeserver.
      *
+     * $searchTerm matches against room name, canonical alias, and room ID.
+     *
      * @return array{rooms: array<int, array<string, mixed>>, offset: int, total_rooms: int, next_batch: int|null}
      * @throws \RuntimeException on HTTP failure
      */
-    public function listRooms( int $limit = 100, int $from = 0 ): array;
+    public function listRooms( int $limit = 100, int $from = 0, ?string $searchTerm = null ): array;
 
     /**
      * Fetch details for a single room.
@@ -146,6 +148,47 @@ interface SynapseAdminClientInterface
      * @throws \RuntimeException on HTTP failure
      */
     public function makeRoomAdmin( string $roomId, string $userId ): void;
+
+    /**
+     * Return the Matrix user ID of the admin token owner.
+     *
+     * @throws \RuntimeException on HTTP failure
+     */
+    public function whoami(): string;
+
+    /**
+     * Accept a pending invite and join $roomId as the admin token user.
+     *
+     * Call makeRoomAdmin() first so a valid invite exists.
+     * $userId must equal whoami() — the joining user is determined by the bearer token.
+     *
+     * @throws \RuntimeException on HTTP failure (including 403 if invite was rejected before this call)
+     */
+    public function forceJoinRoom( string $roomId, string $userId ): void;
+
+    /**
+     * Leave a room as the admin token user.
+     *
+     * @throws \RuntimeException on HTTP failure
+     */
+    public function leaveRoom( string $roomId ): void;
+
+    /**
+     * Kick a user from a room. The admin token user must be a member with kick power level.
+     *
+     * @throws \RuntimeException on HTTP failure
+     */
+    public function kickRoomMember( string $roomId, string $userId, string $reason = '' ): void;
+
+    /**
+     * Set a user's power level in a room by updating m.room.power_levels.
+     *
+     * The admin token user must be in the room with a power level higher than
+     * the level being assigned (or equal when lowering their own level).
+     *
+     * @throws \RuntimeException on HTTP failure
+     */
+    public function setRoomPowerLevel( string $roomId, string $userId, int $level ): void;
 
     // -------------------------------------------------------------------------
     // Directory

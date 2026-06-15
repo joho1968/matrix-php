@@ -1,6 +1,6 @@
 # matrix-php
 
-**Version 0.90.2** — [Changelog](CHANGELOG.md) — [Source](https://codeberg.org/joho1968/matrix-php)
+**Version 0.92.0** — [Changelog](CHANGELOG.md) — [Source](https://codeberg.org/joho1968/matrix-php)
 
 Reusable PHP 8.4+ library for interacting with a Matrix/Synapse homeserver.
 Provides an Application Service client (`MatrixClient`) for sending events and

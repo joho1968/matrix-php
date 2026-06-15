@@ -2,6 +2,33 @@
 
 All notable changes to matrix-php will be documented here.
 
+## [0.92.0] — 2026-06-15
+
+### Added
+
+- `listRooms()` gains an optional `$searchTerm` parameter passed as `search_term` to
+  the Synapse Admin API (matches room name, canonical alias, and room ID).
+- `whoami(): string` — returns the Matrix user ID of the admin token owner.
+- `leaveRoom( string $roomId ): void` — leaves a room as the admin token user.
+- `kickRoomMember( string $roomId, string $userId, string $reason )` — kicks a user
+  from a room via the Matrix client kick endpoint.
+- `setRoomPowerLevel( string $roomId, string $userId, int $level )` — sets a user's
+  power level by reading and rewriting `m.room.power_levels`; unsets the user entry
+  when the level equals `users_default`.
+- `forceJoinRoom( string $roomId, string $userId )` — accepts a pending invite and joins
+  a room as the admin token user via `POST /_matrix/client/v3/rooms/{roomId}/join`.
+  Call `makeRoomAdmin()` first so a valid invite exists; throws on failure.
+
+## [0.90.4] — 2026-06-15
+
+### Fixed
+
+- `getStateEvent()` now falls back to `GET /_synapse/admin/v1/rooms/{roomId}/state`
+  when the client API returns 403 (admin token user is not a member of the room).
+  This means retention and other state events are correctly fetched for all rooms
+  regardless of membership, without the overhead of the admin endpoint for rooms
+  the admin user is already in.
+
 ## [0.90.2] — 2026-06-15
 
 ### Added
