@@ -1,6 +1,6 @@
 {
     "name": "joho/matrix-php",
-    "version": "0.90.0",
+    "version": "0.90.1",
     "description": "Reusable PHP 8.4+ library for interacting with Matrix/Synapse via the Application Service and Admin APIs",
     "type": "library",
     "license": "AGPL-3.0-or-later",

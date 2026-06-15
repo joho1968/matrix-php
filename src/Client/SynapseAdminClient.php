@@ -263,7 +263,7 @@ final class SynapseAdminClient implements SynapseAdminClientInterface
     public function purgeRemoteMedia( int $beforeTimestamp ): int
     {
         $url  = $this->url( '/_synapse/admin/v1/purge_media_cache?before_ts=' . $beforeTimestamp );
-        $data = $this->http->delete( $url, [], $this->authHeaders() )->json();
+        $data = $this->http->post( $url, [], $this->authHeaders() )->json();
         return (int) ( $data['deleted'] ?? 0 );
     }
 

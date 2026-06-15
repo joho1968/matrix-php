@@ -147,7 +147,7 @@ interface SynapseAdminClientInterface
     // -------------------------------------------------------------------------
 
     /**
-     * Delete cached remote media older than $beforeTimestamp (Unix ms).
+     * Purge cached remote media older than $beforeTimestamp (Unix ms).
      *
      * Only affects media fetched from other homeservers, not locally uploaded content.
      * Returns the number of files deleted.
