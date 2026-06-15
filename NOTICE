@@ -1,0 +1,12 @@
+matrix-php
+Reusable PHP 8.4+ library for Matrix/Synapse Application Service and Admin API integration
+
+Written by Joaquim Homrighausen while converting caffeine into code.
+Copyright 2026 Joaquim Homrighausen; all rights reserved.
+
+Licensed under the GNU Affero General Public License v3.0 or later.
+See LICENSE for the full license text.
+
+Sponsored by WebbPlatsen i Sverige AB, Sweden.
+If you need a GDPR-safe place to host your Matrix, Mattermost, and/or
+RocketChat instance, get in touch with support@webbplatsen.se
