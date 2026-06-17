@@ -47,9 +47,23 @@ final class MatrixClient implements MatrixClientInterface
 
     public function getRoom( string $roomId ): MatrixRoom
     {
-        $data = $this->get( '/_matrix/client/v3/rooms/' . rawurlencode( $roomId ) . '/state' );
+        $this->get( '/_matrix/client/v3/rooms/' . rawurlencode( $roomId ) . '/state' );
 
         return new MatrixRoom( $roomId );
+    }
+
+    public function getRoomName( string $roomId ): ?string
+    {
+        try {
+            $path = sprintf(
+                '/_matrix/client/v3/rooms/%s/state/m.room.name/',
+                rawurlencode( $roomId ),
+            );
+            $data = $this->get( $path );
+            return isset( $data['name'] ) ? (string) $data['name'] : null;
+        } catch ( MatrixException | HttpException ) {
+            return null;
+        }
     }
 
     public function resolveRoomAlias( string $alias ): ?string

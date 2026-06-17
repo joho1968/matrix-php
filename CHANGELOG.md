@@ -2,6 +2,26 @@
 
 All notable changes to matrix-php will be documented here.
 
+## [0.93.1] — 2026-06-17
+
+### Changed
+
+- Minimum PHP version lowered from 8.4 to 8.2. Removed type annotations from
+  three private class constants (`TIMEOUT_SECONDS`, `LEVELS` ×2) — the only
+  constructs that required PHP 8.3+. All other code is compatible with PHP 8.1+.
+
+## [0.93.0] — 2026-06-16
+
+### Added
+
+- `getRoomName( string $roomId ): ?string` on `MatrixClientInterface` and
+  `MatrixClient` — fetches the `m.room.name` state event and returns the name
+  string, or null if the room has no name or the request fails.
+
+### Changed
+
+- `getRoom()` no longer assigns the state response to an unused variable.
+
 ## [0.92.0] — 2026-06-15
 
 ### Added
@@ -68,4 +88,4 @@ All notable changes to matrix-php will be documented here.
 - `HttpClient` / `HttpClientInterface` — minimal curl-based HTTP client with
   `get`, `post`, `put`, `delete` methods.
 - `FileLogger` and `ConsoleLogger` implementing `LoggerInterface`.
-- No runtime dependencies beyond PHP 8.4+ and `ext-curl`.
+- No runtime dependencies beyond PHP 8.2+ and `ext-curl`.

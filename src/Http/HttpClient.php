@@ -15,7 +15,7 @@ use Joho\Matrix\Exception\HttpException;
  */
 final class HttpClient implements HttpClientInterface
 {
-    private const int TIMEOUT_SECONDS = 30;
+    private const TIMEOUT_SECONDS = 30;
 
     /** @param array<string,string> $defaultHeaders */
     public function __construct(

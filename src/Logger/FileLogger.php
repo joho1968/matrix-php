@@ -14,7 +14,7 @@ use Joho\Matrix\Contracts\LoggerInterface;
  */
 final class FileLogger implements LoggerInterface
 {
-    private const array LEVELS = [ 'debug' => 0, 'info' => 1, 'warning' => 2, 'error' => 3 ];
+    private const LEVELS = [ 'debug' => 0, 'info' => 1, 'warning' => 2, 'error' => 3 ];
 
     /** @var resource */
     private $handle;

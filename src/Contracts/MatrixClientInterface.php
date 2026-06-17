@@ -27,6 +27,9 @@ interface MatrixClientInterface
     /** Retrieve a room by its Matrix room ID. */
     public function getRoom( string $roomId ): MatrixRoom;
 
+    /** Return the display name of a room, or null if unavailable. */
+    public function getRoomName( string $roomId ): ?string;
+
     /**
      * Resolve a room alias to its room ID. Returns null if the alias does not exist.
      *

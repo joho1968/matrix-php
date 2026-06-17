@@ -1,15 +1,15 @@
 # matrix-php
 
-**Version 0.92.0** — [Changelog](CHANGELOG.md) — [Source](https://codeberg.org/joho1968/matrix-php)
+**Version 0.93.1** — [Changelog](CHANGELOG.md) — [Source](https://codeberg.org/joho1968/matrix-php)
 
-Reusable PHP 8.4+ library for interacting with a Matrix/Synapse homeserver.
+Reusable PHP 8.2+ library for interacting with a Matrix/Synapse homeserver.
 Provides an Application Service client (`MatrixClient`) for sending events and
 managing rooms/users, and a Synapse Admin API client (`SynapseAdminClient`) for
 administrative operations. No framework dependencies.
 
 ## Requirements
 
-- PHP 8.4+
+- PHP 8.2+
 - `ext-curl`
 
 ## Installation
